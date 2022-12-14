@@ -2,16 +2,17 @@ Node = Struct.new(:x, :y, :distance, :letter)
 class HillClimbing
   def initialize(filename)
     @unvisited = []
+    @possible_starts = []
     @graph = IO.readlines(filename).map.with_index do |line, row|
       line.chomp.chars.map.with_index do |char, col|
-        if char == 'S'
+        if char == 'E'
           node = Node.new(col, row, 0, char)
-          @start = node
         else
           node = Node.new(col, row, 100000000000, char)
-          @end = node if char == 'E'
+          @original_start = node if char == 'S'
         end
         @unvisited << node
+        @possible_starts << node if char == 'a'
         node
       end
     end
@@ -36,7 +37,11 @@ class HillClimbing
       end
       fix_sort
     end
-    @end.distance
+    puts "Original Start distance:"
+    puts @original_start.distance
+
+    puts "Shortest distance to a"
+    puts @possible_starts.map(&:distance).sort.first
   end
 
   def moves(node)
@@ -49,7 +54,7 @@ class HillClimbing
     moves
   end
 
-  def height_ok?(fromx, fromy, tox, toy)
+  def height_ok?(tox, toy, fromx, fromy)
     from = @graph[fromy][fromx].letter
     from = 'a' if from == 'S'
     to = @graph[toy][tox].letter
@@ -58,5 +63,5 @@ class HillClimbing
   end
 end
 
-puts HillClimbing.new('input-test.txt').shortest_path
-puts HillClimbing.new('input.txt').shortest_path
+HillClimbing.new('input-test.txt').shortest_path
+HillClimbing.new('input.txt').shortest_path
